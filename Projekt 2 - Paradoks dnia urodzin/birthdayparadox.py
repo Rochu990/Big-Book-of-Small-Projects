@@ -38,3 +38,45 @@ while True:
         numBDays = int(response)
         break
 print()
+
+print('Oto', numBDays, 'dni urodzin:')
+birthdays = getBirthdays(numBDays)
+for i, birthday in enumerate(birthdays):
+    if i != 0:
+        print(', ', end='')
+    monthName = MONTHS[birthday.month - 1]
+    dateText = '{} {}'.format(monthName, birthday.day)
+    print(dateText, end='')
+print()
+print()
+
+match = getMatch(birthdays)
+
+print('W tej symulacji, ', end='')
+if match != None:
+    monthName = MONTHS[match.month - 1]
+    dateText = '{} {}'.format(monthName, match.day)
+    print('Kilka osób ma urodziny', dateText)
+else:
+    print('nie ma takich samych dni urodzin.')
+print()
+
+print('Generowanie ', numBDays, 'losowych dni urodzin 100 000 razy...')
+input('Naciśnij Enter, aby rozpocząć...')
+
+print('Przeprowadzmy kolejnych 100 000 symulacji.')
+simMatch = 0
+for i in range(100_000):
+    if i % 10_000 == 0:
+        print(i, 'przeprowadzonych symulacji...')
+    birthdays = getBirthdays(numBDays)
+    if getMatch(birthdays) != None:
+        simMatch = simMatch + 1
+print('100 000 przeprowadzonych symulacji.')
+
+probability = round(simMatch / 100_000 * 100, 2)
+print('Ze 100 000 symulacji dla ', numBDays, 'osób, ten sam')
+print('dzień urodzin wystąpił', simMatch, 'razy. Oznacza to,')
+print('że dla ', numBDays, 'ludzi istnieje ', probability, '% szans, iż')
+print('dwie lub więcej osób będzie miało urodziny w tym samym dniu.')
+print('To prawdopodobnie więcej, niż przypuszczałeś.')
