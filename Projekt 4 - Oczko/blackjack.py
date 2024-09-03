@@ -1,13 +1,16 @@
-import random, sys
+import random
+import sys
 
 HEARTS = chr(9829)
 DIAMONDS = chr(9830)
 SPADES = chr(9824)
-CLUBS =  chr(9827)
-BACKSIDE = 'tył'
+CLUBS = chr(9827)
+BACKSIDE = "tył"
+
 
 def main():
-    print(""" Oczko
+    print(
+        """ Oczko
     Zasady:
         Spróbuj uzyskać liczbę punktów jak najbardziej zbliżoną do 21, ale nie większą.
         Króle, damy i walety mają 10 punktów.
@@ -29,7 +32,7 @@ def main():
             print("Dobrze, że nie grałeś na prawdziwe pieniądze.")
             print("Dziękuję za grę!")
             sys.exit()
-    
+
         print("Budżet: ", money)
         bet = getBet(money)
 
@@ -47,20 +50,122 @@ def main():
 
             move = getMove(playerHand, money - bet)
 
-            if move == 'P':
+            if move == "P":
                 additionalBet = getBet(min(bet, money - bet))
                 bet += additionalBet
-                print('Sakład zwiększony do kwoty {}.'.format(bet))
-                print('Zakład:', bet)
+                print("Sakład zwiększony do kwoty {}.".format(bet))
+                print("Zakład:", bet)
 
-            if move in ('D', 'P'):
+            if move in ("D", "P"):
                 newCard = deck.pop()
                 rank, suit = newCard
-                print('Wziąłeś {} {}.'.format(rank, suit))
+                print("Wziąłeś {} {}.".format(rank, suit))
                 playerHand.append(newCard)
 
                 if getHandValue(playerHand) > 21:
                     continue
-            
-            if move in ('S', 'P'):
+
+            if move in ("S", "P"):
                 break
+
+        if getHandValue(playerHand) <= 21:
+            while getHandValue(dealerHand) < 17:
+                print("Krupier dobiera kartę...")
+                dealerHand.append(deck.pop())
+                displayHands(playerHand, dealerHand, False)
+
+                if getHandValue(dealerHand) > 21:
+                    break
+                input("Naciśnij Enter, by kontynuować...")
+                print("\n\n")
+
+        displayHands(playerHand, dealerHand, True)
+
+        playerValue = getHandValue(playerHand)
+        dealerValue = getHandValue(dealerHand)
+
+        if dealerValue > 21:
+            print("Krupier przekroczył 21! Wygrałeś {} PLN!".format(bet))
+            money += bet
+        elif (playerValue > 21) or (playerValue < dealerValue):
+            print("Przegrałeś!")
+            money -= bet
+        elif playerValue > dealerValue:
+            print("Wygrałeś {} PLN!".format(bet))
+            money += bet
+        elif playerValue == dealerValue:
+            print("Jest remis, zakład wraca do Ciebie")
+
+        input("Naciśnij Enter, by kontynuować...")
+        print("\n\n")
+
+
+def getBet(maxBet):
+    while True:
+        print("Ile chcesz postawić? (1-{} lub KONIEC)".format(maxBet))
+        bet = input("> ").upper().strip()
+        if bet == "KONIEC":
+            print("Dziękuję za grę!")
+            sys.exit()
+
+        if not bet.isdecimal():
+            continue
+
+        bet = int(bet)
+        if 1 <= bet <= maxBet:
+            return bet
+
+
+def getDeck():
+    deck = []
+    for suit in (HEARTS, DIAMONDS, SPADES, CLUBS):
+        for rank in range(2, 11):
+            deck.append((str(rank), suit))
+        for rank in ("J", "Q", "K", "A"):
+            deck.append((rank, suit))
+    random.shuffle(deck)
+    return deck
+
+
+def dispalyHands(playerHand, dealerHand, showDealerHand):
+    print()
+    if showDealerHand:
+        print("KRUPIER:", getHandValue(dealerHand))
+        displayCards(dealerHand)
+    else:
+        print("KRUPIER: ???")
+        dispalyCards([BACKSIDE] + dealerHand[1:])
+
+    print("GRACZ:", getHandValue(playerHand))
+    dispalyCards(playerHand)
+
+
+def getHandValue(cards):
+    value = 0
+    numberOfAces = 0
+
+    for card in cards:
+        rank = card[0]
+        if rank == "A":
+            numberOfAces += 1
+        elif rank in ("K", "Q", "J"):
+            value += 10
+        else:
+            value += int(rank)
+
+    value += numberOfAces
+    for i in range(numberOfAces):
+        if value + 10 <= 21:
+            value += 10
+
+    return value
+
+
+def displayCards(cards):
+    rows = ["", "", "", ""]
+    for i, card in enumerate(cards):
+        rows[0] += " ___ "
+        if card == BACKSIDE:
+            rows[1] += "|## |"
+            rows[2] += "|###|"
+            rows[3] += "| ##|"
