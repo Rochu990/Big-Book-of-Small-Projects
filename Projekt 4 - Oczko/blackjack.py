@@ -42,7 +42,7 @@ def main():
 
         print("Zakład:", bet)
         while True:
-            displayHands(playerHand, dealerHand, False)
+            dispalyHands(playerHand, dealerHand, False)
             print()
 
             if getHandValue(playerHand) > 21:
@@ -72,14 +72,14 @@ def main():
             while getHandValue(dealerHand) < 17:
                 print("Krupier dobiera kartę...")
                 dealerHand.append(deck.pop())
-                displayHands(playerHand, dealerHand, False)
+                dispalyHands(playerHand, dealerHand, False)
 
                 if getHandValue(dealerHand) > 21:
                     break
                 input("Naciśnij Enter, by kontynuować...")
                 print("\n\n")
 
-        displayHands(playerHand, dealerHand, True)
+        dispalyHands(playerHand, dealerHand, True)
 
         playerValue = getHandValue(playerHand)
         dealerValue = getHandValue(dealerHand)
@@ -134,10 +134,10 @@ def dispalyHands(playerHand, dealerHand, showDealerHand):
         displayCards(dealerHand)
     else:
         print("KRUPIER: ???")
-        dispalyCards([BACKSIDE] + dealerHand[1:])
+        displayCards([BACKSIDE] + dealerHand[1:])
 
     print("GRACZ:", getHandValue(playerHand))
-    dispalyCards(playerHand)
+    displayCards(playerHand)
 
 
 def getHandValue(cards):
@@ -169,3 +169,27 @@ def displayCards(cards):
             rows[1] += "|## |"
             rows[2] += "|###|"
             rows[3] += "| ##|"
+        else:
+            rank, suit = card
+            rows[1] += '|{} |'.format(rank.ljust(2))
+            rows[2] += '| {} |'.format(suit)
+            rows[3] += '|_{}|'.format(rank.rjust(2, '_'))
+
+    for row in rows:
+        print(row)
+
+def getMove(playerHand, money):
+    while True:
+        moves = ['(D)obierz', '(S)top']
+        if len(playerHand) == 2 and money > 0:
+            moves.append('(P)odwój')
+
+        movePrompt = ", ".join(moves) + '> '
+        move = input(movePrompt).upper()
+        if move in ('D', 'S'):
+            return move
+        if move == 'P' and '(P)odwój' in moves:
+            return move
+        
+if __name__ == '__main__':
+    main()
